@@ -6,16 +6,33 @@ import asyncio
 import aiohttp_jinja2
 
 
-
 @aiohttp_jinja2.template('index.html')
 class IndexHandler(web.View):
     async def get(self):
         return {}
 
 
+online_users = []
+
+
 class WebSocketHandler(web.View):
     async def get(self):
-        return web.Response(body=b"Smart Spaces")
+        ws = web.WebSocketResponse()
+        await ws.prepare(self.request)
+
+        online_users.append(ws)
+
+        try:
+            async for msg in ws:
+                if msg.tp == web.MsgType.text:
+                    pass # todo:
+                elif msg.tp == web.MsgType.error:
+                    continue  # тут обработка ошибки
+        finally:
+            await ws.close()
+            online_users.remove(ws)
+
+        return ws
 
 
 async def create_app():
@@ -35,9 +52,6 @@ async def create_app():
 
 
 if __name__ == '__main__':
-
-
-
     loop = asyncio.get_event_loop()
     app = loop.run_until_complete(create_app())
     web.run_app(app, port=1337)
