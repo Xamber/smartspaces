@@ -1,14 +1,19 @@
 import os
-import simplejson as json
 import jinja2
 from aiohttp import web
 import asyncio
 import aiohttp_jinja2
 
 
-class User():
+class User:
     _online = []
     _summ = 0
+
+    @classmethod
+    def broadcast(cls):
+        for u in cls._online:
+            if not u.ws.closed:
+                u.ws.send_str(str(cls._summ))
 
     def __init__(self, ws):
         self.number = 0
@@ -22,11 +27,6 @@ class User():
         await self.ws.close()
         self._online.remove(self)
 
-    @classmethod
-    def broadcast(cls):
-        for u in cls._online:
-            if not u.ws.closed:
-                u.ws.send_str(str(cls._summ))
 
     def receive_number(self, new_number):
         old_number = self.number

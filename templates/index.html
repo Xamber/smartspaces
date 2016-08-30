@@ -13,7 +13,7 @@
 
 <div style="margin-top: 50px" class="container text-center">
     <h2>Привет =)</h2>
-    <span class="help-block">Выберите чисто от одного до девяти</span>
+    <span class="help-block">Выберите число от одного до девяти</span>
     <h1 style="font-size: 150px" ng-bind="summ" class="text-primary"></h1>
     <button style="margin-left: 3px" class="btn" ng-class="{true:'btn-primary', false:'btn-default'}[n==selectedNumber]" ng-repeat="n in avalibleNumbers" ng-click="setNumber(n)" ng-bind="n"></button>
 </div>
