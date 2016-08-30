@@ -2,7 +2,7 @@ var AngularApp = angular.module('AngularApp', []);
 
 AngularApp.controller('AngularCtrl', function ($scope) {
     $scope.selectedNumber = 0;
-    $scope.avalibleNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    $scope.avalibleNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     $scope.summ = 0;
     $scope.online = 0;
 
@@ -26,6 +26,7 @@ AngularApp.controller('AngularCtrl', function ($scope) {
         $scope.socket.onopen = function () {
             console.log("Соединение установлено.");
             $scope.socket.send($scope.selectedNumber.toString());
+            $scope.$apply()
         };
 
         $scope.socket.onclose = function (event) {
@@ -34,10 +35,12 @@ AngularApp.controller('AngularCtrl', function ($scope) {
             } else {
                 console.log('Произошел сбой соединения');
             }
+            $scope.$apply()
         };
 
         $scope.socket.onerror = function (error) {
             console.log("Ошибка " + error.message);
+            $scope.$apply()
         };
 
         $scope.socket.onmessage = function (event) {

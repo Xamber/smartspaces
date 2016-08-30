@@ -10,11 +10,19 @@
 
 <div style="margin-top: 50px" class="container text-center">
     <h2>Привет =)</h2>
+    <div ng-show="socket.readyState == 1">
     <span class="help-block">На основе <b ng-bind="online"></b> пользователей, получена следующая сумма:</span>
     <h1 style="font-size: 150px" ng-bind="summ" class="text-primary"></h1>
     <button style="margin-left: 3px" class="btn"
             ng-class="{true:'btn-primary', false:'btn-default'}[n==selectedNumber]"
             ng-repeat="n in avalibleNumbers" ng-click="setNumber(n)" ng-bind="n"></button>
+    </div>
+    <div ng-show="socket.readyState == 0">
+        <div class="alert alert-success">Соединяемся с сервером</div>
+    </div>
+    <div ng-show="socket.readyState == 3">
+        <div class="alert alert-danger">Отсутствует соединение с сервером</div>
+    </div>
 </div>
 
 <script src="/static/angular.min.js"></script>
