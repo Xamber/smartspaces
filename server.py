@@ -1,5 +1,5 @@
 import os
-
+import simplejson as json
 import jinja2
 from aiohttp import web
 import asyncio
@@ -23,7 +23,7 @@ class User():
         self._online.remove(self)
 
     @classmethod
-    def send_summ(cls):
+    def broadcast(cls):
         for u in cls._online:
             if not u.ws.closed:
                 u.ws.send_str(str(cls._summ))
@@ -32,9 +32,10 @@ class User():
         old_number = self.number
         new_number = int(new_number)
         diff = old_number - new_number
+
         self.number = new_number
         User._summ -= diff
-        User.send_summ()
+        User.broadcast()
 
 
 @aiohttp_jinja2.template('index.html')
