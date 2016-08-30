@@ -13,7 +13,7 @@
 
 <div style="margin-top: 50px" class="container text-center">
     <h2>Привет =)</h2>
-    <span class="help-block">Выберите число от одного до девяти</span>
+    <span class="help-block">На основе <b ng-bind="online"></b> пользователей, получена следующая сумма:</span>
     <h1 style="font-size: 150px" ng-bind="summ" class="text-primary"></h1>
     <button style="margin-left: 3px" class="btn" ng-class="{true:'btn-primary', false:'btn-default'}[n==selectedNumber]" ng-repeat="n in avalibleNumbers" ng-click="setNumber(n)" ng-bind="n"></button>
 </div>
@@ -24,12 +24,13 @@
 
         AngularApp.controller('AngularCtrl', function($scope, $http) {
             $scope.selectedNumber = 0;
-            $scope.avalibleNumbers = [1,2,3,4,5,6,7,8,9];
+            $scope.avalibleNumbers = [1,2,3,4,5,6,7,8,9,10];
             $scope.summ = 0;
+            $scope.online = 0;
 
             $scope.handleNewSumm = function(data){
-                console.log(data);
-                $scope.summ = data;
+                $scope.summ = JSON.parse(data).summ;
+                $scope.online = JSON.parse(data).online;
                 $scope.$apply()
             };
 
@@ -46,6 +47,7 @@
 
                 $scope.socket.onopen = function() {
                   console.log("Соединение установлено.");
+                  $scope.socket.send($scope.selectedNumber.toString());
                 };
 
                 $scope.socket.onclose = function(event) {

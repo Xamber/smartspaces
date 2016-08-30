@@ -3,6 +3,7 @@ import jinja2
 from aiohttp import web
 import asyncio
 import aiohttp_jinja2
+import simplejson as json
 
 
 class User:
@@ -10,31 +11,36 @@ class User:
     _summ = 0
 
     @classmethod
-    def broadcast(cls):
+    def broadcast(cls, on_disconnect=False):
+        info = json.dumps(dict(summ=cls._summ, online=len(cls._online)))
         for u in cls._online:
             if not u.ws.closed:
-                u.ws.send_str(str(cls._summ))
+                u.ws.send_str(info)
+
+    @classmethod
+    def change_summ(cls, diff):
+        cls._summ -= diff
 
     def __init__(self, ws):
         self.number = 0
         self.ws = ws
         self._online.append(self)
-        self.ws.send_str(str(User._summ))
+        self.reset()
 
     async def disconnect(self):
-        print('Пользователь отключен')
-        self.receive_number(0)
+        self.reset()
         await self.ws.close()
         self._online.remove(self)
+        self.broadcast()
 
     def receive_number(self, new_number):
-        old_number = self.number
         new_number = int(new_number)
-        diff = old_number - new_number
-
+        self.change_summ(self.number - new_number)
         self.number = new_number
-        User._summ -= diff
-        User.broadcast()
+        self.broadcast()
+
+    def reset(self):
+        self.receive_number(0)
 
 
 @aiohttp_jinja2.template('index.html')
