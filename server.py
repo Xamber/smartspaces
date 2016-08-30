@@ -11,7 +11,7 @@ class User:
     _summ = 0
 
     @classmethod
-    def broadcast(cls, on_disconnect=False):
+    def broadcast(cls):
         info = json.dumps(dict(summ=cls._summ, online=len(cls._online)))
         for u in cls._online:
             if not u.ws.closed:
