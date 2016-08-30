@@ -6,13 +6,41 @@ import asyncio
 import aiohttp_jinja2
 
 
+class User():
+    _online = []
+    _summ = 0
+
+    def __init__(self, ws):
+        self.number = 0
+        self.ws = ws
+        self._online.append(self)
+        self.ws.send_str(str(User._summ))
+
+    async def disconnect(self):
+        print('Пользователь отключен')
+        self.receive_number(0)
+        await self.ws.close()
+        self._online.remove(self)
+
+    @classmethod
+    def send_summ(cls):
+        for u in cls._online:
+            if not u.ws.closed:
+                u.ws.send_str(str(cls._summ))
+
+    def receive_number(self, new_number):
+        old_number = self.number
+        new_number = int(new_number)
+        diff = old_number - new_number
+        self.number = new_number
+        User._summ -= diff
+        User.send_summ()
+
+
 @aiohttp_jinja2.template('index.html')
 class IndexHandler(web.View):
     async def get(self):
         return {}
-
-
-online_users = []
 
 
 class WebSocketHandler(web.View):
@@ -20,17 +48,17 @@ class WebSocketHandler(web.View):
         ws = web.WebSocketResponse()
         await ws.prepare(self.request)
 
-        online_users.append(ws)
+        user = User(ws)
 
         try:
             async for msg in ws:
                 if msg.tp == web.MsgType.text:
-                    pass # todo:
+                    user.receive_number(msg.data)
                 elif msg.tp == web.MsgType.error:
                     continue  # тут обработка ошибки
         finally:
-            await ws.close()
-            online_users.remove(ws)
+            await user.disconnect()
+            del user
 
         return ws
 
