@@ -4,12 +4,75 @@
     <meta charset="UTF-8">
     <title>Title</title>
 
-    <script src="/static/angular.min.js"></script>
     <link rel="stylesheet" href="/static/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/bootstrap-theme.css">
+    <script src="/static/angular.min.js"></script>
+
 
 </head>
-<body>
+<body ng-app="AngularApp" ng-controller="AngularCtrl" ng-init="init()">
+
+<div class="container">
+
+    <h3>Привет =)</h3>
+    <p>Выбери число от одного до девяти: <b ng-bind="selectedNumber"></b></p>
+    <button style="margin-left: 3px" class="btn btn-success" ng-repeat="n in avalibleNumbers" ng-click="setNumber(n)" ng-bind="n"></button>
+    <h3>Сумма всех пользователей: <span ng-bind="summ"></span></h3>
+
+
+</div>
+
+
+<script>
+        var AngularApp = angular.module('AngularApp', []);
+
+        AngularApp.controller('AngularCtrl', function($scope, $http) {
+            $scope.selectedNumber = 0;
+            $scope.avalibleNumbers = [1,2,3,4,5,6,7,8,9];
+            $scope.summ = 0;
+
+            $scope.handleNewSumm = function (data) {
+                //todo
+            };
+
+            $scope.setNumber = function (number) {
+                $scope.selectedNumber = number;
+            };
+
+            $scope.init = function () {
+                var host = window.location.hostname;
+                var port = window.location.port;
+
+                $scope.socket = new WebSocket("ws://"+host+":"+port+"/ws");
+
+                $scope.socket.onopen = function() {
+                  console.log("Соединение установлено.");
+                };
+
+                $scope.socket.onclose = function(event) {
+                  if (event.wasClean) {
+                    console.log('Соединение было закрыто');
+                  } else {
+                    console.log('Произошел сбой соединения');
+                  }
+                };
+
+                $scope.socket.onerror = function(error) {
+                    console.log("Ошибка " + error.message);
+                };
+
+                $scope.socket.onmessage = function(event) {
+                    $scope.handleNewSumm(event.data);
+                };
+
+                console.log($scope);
+
+            };
+
+
+        });
+
+
+</script>
 
 </body>
 </html>
