@@ -27,7 +27,6 @@ class User:
         await self.ws.close()
         self._online.remove(self)
 
-
     def receive_number(self, new_number):
         old_number = self.number
         new_number = int(new_number)
@@ -41,7 +40,7 @@ class User:
 @aiohttp_jinja2.template('index.html')
 class IndexHandler(web.View):
     async def get(self):
-        return {}
+        return {'method': self.request.method}
 
 
 class WebSocketHandler(web.View):
@@ -82,5 +81,5 @@ async def create_app():
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    app = loop.run_until_complete(create_app())
-    web.run_app(app, port=1337)
+    application = loop.run_until_complete(create_app())
+    web.run_app(application, port=1337)
